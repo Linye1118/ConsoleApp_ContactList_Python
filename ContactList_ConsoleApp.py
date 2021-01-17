@@ -10,6 +10,7 @@ class Person(object):
 
 fileName = "ContactList.txt"
 People = []
+
 from itertools import islice
 def loadData():
     #fileName = "ContactList.txt"
@@ -28,10 +29,10 @@ def loadData():
                     count += 1                    
                     if count==8:
                         addresses = []
-                        addresses.append(tmp_lines[4])
-                        addresses.append(tmp_lines[5])
-                        new = Person(tmp_lines[0],tmp_lines[1], tmp_lines[2],
-                                     tmp_lines[3],addresses,tmp_lines[6])                                    
+                        addresses.append(tmp_lines[4].strip())
+                        addresses.append(tmp_lines[5].strip())
+                        new = Person(tmp_lines[0].strip(),tmp_lines[1].strip(), tmp_lines[2].strip(),
+                                     tmp_lines[3].strip(),addresses,tmp_lines[6].strip())                                    
                         People.append(new)                                              
     except FileNotFoundError:
         print('No existing file')
@@ -73,7 +74,7 @@ def printPerson(person):
     print("Phone Number: " + person.PhoneNumber.strip())
     print("Address 1: " + person.Addresses[0].strip())
     print("Address 2: " + person.Addresses[1].strip())
-    print("Type/Remark: " + person.Type)
+    print("Type/Remark: " + person.Type + "\n")
    
 def listPeople():
     print(str(len(People))+' contacts in the list.')
@@ -81,16 +82,17 @@ def listPeople():
     for it in People:
         print('Contact# ' + str(i))
         printPerson(it)
-        print('---')
+        print('***')
         i += 1
     print('----------- End -------------\n')
 
 def searchPeople():
-    UserInput = input ("Enter the first name of the person you would find: ")
+    UserInput = input ("Enter the first name/start letter of the contact to search: ")
     listFound = []
     count = 1
     for x in People:
-        if x.FirstName.strip() == UserInput.strip():
+        #if x.FirstName.lower().strip() == UserInput.lower().strip():
+         if x.FirstName.lower().strip().startswith(UserInput.lower().strip()):
             print("Search result#: " + str(count))
             printPerson(x)
             listFound.append(x)
@@ -104,40 +106,41 @@ def deletePerson():
     listTarget = searchPeople()
     if len(listTarget) == 0: return      
     else:
-        x = input("Please select the number to remove or type A to remove all...")
-        if x!= "A" and x.isdigit():
+        x = input("\nSelect the number to remove or type A to remove all...")
+        if x.isdigit():
             index = int(x)-1
             if index >=0 and index < len(listTarget):
                 p = listTarget[index]
                 People.remove(p)
                 print("Person removed.")
             else:
-                print("Invalid number choice...(number out of range)")
+                print("Invalid number ...(number out of range)")
                 return
-        elif x=="A":
+        elif x.lower()=="a":
             for it in listTarget:
                 People.remove(it)
                 print("Person removed.")            
         else:
-            print("Invalid selection...(number or A)")
+            print("Invalid selection...(number or type A)")
             return     
        
 
 def editPerson():
-    print()
+    print("Not impelemented...")
     
 def saveFile():
-    with open("TestSave.txt",'w') as fp:
+    with open(fileName,'w') as fp:
         for it in People:
-            fp.write(it.FirstName)
-            fp.write(it.LastName)           
-            fp.write(it.PhoneNumber)
-            fp.write(it.Email)
-            fp.write(it.Addresses[0])
-            fp.write(it.Addresses[1])
-            fp.write(it.Type)
-            fp.write('---\n')
+            fp.write(it.FirstName + '\n')
+            fp.write(it.LastName + '\n')      
+            fp.write(it.PhoneNumber + '\n')            
+            fp.write(it.Email + '\n')
+            fp.write(it.Addresses[0] + '\n')
+            fp.write(it.Addresses[1] + '\n')
+            fp.write(it.Type + '\n')
+            fp.write('***\n')
 
+    print("...data saved...")
 
 UserMenu = '''
     ======================================
@@ -152,14 +155,15 @@ UserMenu = '''
 commands = {'add': addPerson, 'delete': deletePerson, 'list': listPeople,
             'edit': editPerson, 'search': searchPeople, 'exit': saveFile}
 
-print('Welcome to contact list!\n', UserMenu)
-cmd = input('Enter command: ')    
+print('******Welcome to contact list!******\n', UserMenu)
+cmd = input('Enter command: ').lower()   
 while cmd!= 'exit': 
     if cmd in commands:
         commands[cmd]()
     else:
-        print('Choice cannot be found' + cmd)        
+        print('Command cannot be found ' + cmd)        
     print(UserMenu)
     cmd = input('Enter command: ') 
 if cmd=='exit':
+    commands[cmd]()
     print('Good Bye')
